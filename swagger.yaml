@@ -1,0 +1,284 @@
+openapi: 3.0.0
+info:
+  title: Daily Diet API
+  version: 1.0.0
+  description: API for managing users and meals in the Daily Diet application.
+servers:
+  - url: http://localhost:5000
+    description: Local server
+
+paths:
+  /login:
+    post:
+      summary: Log in a user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                  example: user123
+                password:
+                  type: string
+                  example: password123
+      responses:
+        '200':
+          description: User authorized
+        '404':
+          description: Invalid username or password
+
+  /logout:
+    get:
+      summary: Log out a user
+      responses:
+        '200':
+          description: Successfully logged out
+
+  /meal:
+    post:
+      summary: Create a meal
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  example: Breakfast
+                description:
+                  type: string
+                  example: Oatmeal with fruits
+                date_time:
+                  type: string
+                  format: date-time
+                  example: 2024-09-15T08:00:00Z
+                in_diet:
+                  type: boolean
+                  example: true
+      responses:
+        '201':
+          description: Meal created successfully
+        '400':
+          description: Name, date_time, and in_diet are required
+
+  /meal/{meal_id}:
+    put:
+      summary: Update a meal
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: meal_id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                description:
+                  type: string
+                date_time:
+                  type: string
+                  format: date-time
+                in_diet:
+                  type: boolean
+      responses:
+        '200':
+          description: Meal updated successfully
+        '403':
+          description: You are not authorized to update this meal
+        '404':
+          description: Meal not found
+
+    delete:
+      summary: Delete a meal
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: meal_id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Meal deleted successfully
+        '403':
+          description: You are not authorized to delete this meal
+        '404':
+          description: Meal not found
+
+    get:
+      summary: Get a meal by ID
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: meal_id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Meal details
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                  name:
+                    type: string
+                  description:
+                    type: string
+                  date_time:
+                    type: string
+                    format: date-time
+                  in_diet:
+                    type: boolean
+        '404':
+          description: Meal not found
+
+  /meals:
+    get:
+      summary: Get all meals for the current user
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: List of meals
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  meals:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: integer
+                        name:
+                          type: string
+                        description:
+                          type: string
+                        date_time:
+                          type: string
+                          format: date-time
+                        in_diet:
+                          type: boolean
+
+  /user:
+    post:
+      summary: Create a user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                  example: user123
+                password:
+                  type: string
+                  example: password123
+      responses:
+        '201':
+          description: User created successfully
+        '400':
+          description: Username and password are required
+
+  /user/{user_id}:
+    get:
+      summary: Get a user by ID
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: user_id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: User details
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                  username:
+                    type: string
+        '404':
+          description: User not found
+
+    put:
+      summary: Update a user
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: user_id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                password:
+                  type: string
+      responses:
+        '200':
+          description: User updated
+        '403':
+          description: You can't update the password for this user
+        '404':
+          description: User not found
+
+    delete:
+      summary: Delete a user
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: user_id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: User deleted
+        '403':
+          description: You do not have permission to delete users
+        '404':
+          description: User not found
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
