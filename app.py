@@ -10,7 +10,6 @@ from routes.user import user_routes
 app = Flask(__name__)
 app.config.from_object(Config)
 
-# Initialize extensions
 db.init_app(app)
 login_manager = LoginManager()
 login_manager.init_app(app)
@@ -20,12 +19,11 @@ login_manager.login_view = 'auth.login'
 def load_user(user_id):
   return User.query.get(user_id)
 
-# Register blueprints
 app.register_blueprint(auth_routes)
 app.register_blueprint(meal_routes)
 app.register_blueprint(user_routes)
 
 if __name__ == "__main__":
     with app.app_context():
-        db.create_all()  # Cria as tabelas no banco de dados se ainda não existirem
+        db.create_all()
     app.run(debug=True)
